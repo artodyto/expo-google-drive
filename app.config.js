@@ -20,6 +20,7 @@ export default {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff",
       },
+      package: "com.artodyto.expogoogledrive",
     },
     web: {
       favicon: "./assets/favicon.png",
@@ -29,5 +30,6 @@ export default {
         projectId: "8e4883de-fd74-408f-b807-3259770d36ed",
       },
     },
+    plugins: ["@react-native-google-signin/google-signin"],
   },
 };
