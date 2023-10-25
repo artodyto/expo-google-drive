@@ -1,3 +1,6 @@
+import "dotenv/config";
+
+const WEB_CLIENT_ID = process.env.WEB_CLIENT_ID;
 export default {
   expo: {
     name: "expo-google-drive",
@@ -26,6 +29,7 @@ export default {
       favicon: "./assets/favicon.png",
     },
     extra: {
+      WEB_CLIENT_ID: WEB_CLIENT_ID,
       eas: {
         projectId: "8e4883de-fd74-408f-b807-3259770d36ed",
       },
