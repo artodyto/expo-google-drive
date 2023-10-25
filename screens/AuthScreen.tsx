@@ -3,10 +3,12 @@ import {
   GoogleSigninButton,
   User,
 } from "@react-native-google-signin/google-signin";
+import { NavigationProp } from "@react-navigation/native";
 import Constants from "expo-constants";
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
-import CurrentUser from "./CurrentUser";
+import CurrentUser from "../components/CurrentUser";
+import { MainNavigationParamList } from "../navigator/MainNavigator";
 
 const WEB_CLIENT_ID = Constants?.expoConfig?.extra?.WEB_CLIENT_ID;
 
@@ -15,9 +17,9 @@ GoogleSignin.configure({
   webClientId: WEB_CLIENT_ID,
 });
 
-const URL = "https://www.googleapis.com/drive/v3/files?spaces=appDataFolder";
-
-export default function () {
+const AuthScreen: React.FC<{
+  navigation: NavigationProp<MainNavigationParamList>;
+}> = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isFetchingToken, setIsFetchingToken] = useState<boolean>(false);
   const [gDriveToken, setGDriveToken] = useState<string | null>(null);
@@ -41,7 +43,7 @@ export default function () {
           console.log("res.accessToken =>", token.accessToken);
         }
       } catch (error) {
-        console.log({ error });
+        alert(error);
       } finally {
         setIsFetchingToken(false);
       }
@@ -57,8 +59,9 @@ export default function () {
 
   if (currentUser) {
     return (
-      <View>
+      <View style={{ flex: 1 }}>
         <CurrentUser
+          gDriveToken={gDriveToken}
           currentUser={currentUser}
           onLogout={async () => {
             try {
@@ -71,6 +74,7 @@ export default function () {
           onRevokeAccess={async () => {
             try {
               await GoogleSignin.revokeAccess();
+              await GoogleSignin.signOut();
             } catch (error) {
               console.error(error);
             }
@@ -82,18 +86,22 @@ export default function () {
   }
 
   return (
-    <GoogleSigninButton
-      size={GoogleSigninButton.Size.Wide}
-      color={GoogleSigninButton.Color.Dark}
-      onPress={async () => {
-        try {
-          await GoogleSignin.hasPlayServices();
-          const userInfo = await GoogleSignin.signIn();
-          setCurrentUser(userInfo);
-        } catch (error) {
-          console.log({ error });
-        }
-      }}
-    />
+    <View style={{ flex: 1 }}>
+      <GoogleSigninButton
+        size={GoogleSigninButton.Size.Wide}
+        color={GoogleSigninButton.Color.Dark}
+        onPress={async () => {
+          try {
+            await GoogleSignin.hasPlayServices();
+            const userInfo = await GoogleSignin.signIn();
+            setCurrentUser(userInfo);
+          } catch (error) {
+            alert(error);
+          }
+        }}
+      />
+    </View>
   );
-}
+};
+
+export default AuthScreen;
