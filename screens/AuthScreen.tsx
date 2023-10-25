@@ -75,6 +75,7 @@ const AuthScreen: React.FC<{
             try {
               await GoogleSignin.revokeAccess();
               await GoogleSignin.signOut();
+              setCurrentUser(null);
             } catch (error) {
               console.error(error);
             }

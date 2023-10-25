@@ -3,25 +3,22 @@ import {
   GDrive,
   MimeTypes,
 } from "@robinbobin/react-native-google-drive-api-wrapper";
-import axios from "axios";
 import * as FileSystem from "expo-file-system";
 import React, { useEffect, useState } from "react";
 import { Button, ScrollView, Text, View } from "react-native";
 
 import { MainNavigationParamList } from "../navigator/MainNavigator";
 
-const URL = "https://www.googleapis.com/drive/v3/files?spaces=appDataFolder";
 const gDrive = new GDrive();
+gDrive.fetchTimeout = -1;
 const { StorageAccessFramework } = FileSystem;
 
-const getFilesAsync = async (accessToken: string) => {
+const getFilesAsync = async () => {
   try {
-    const response = await axios.get(URL, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+    const response = await gDrive.files.list({
+      spaces: ["appDataFolder"],
     });
-    return response.data;
+    return response;
   } catch (error) {
     alert(error);
   }
@@ -64,9 +61,10 @@ const FilesScreen: React.FC<{
   }>();
 
   const getFilesClient = async () => {
-    const files = await getFilesAsync(token);
+    const files = await getFilesAsync();
     setFiles(files);
   };
+
   useEffect(() => {
     getFilesClient();
   }, [token]);
