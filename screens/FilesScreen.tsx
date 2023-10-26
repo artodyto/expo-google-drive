@@ -49,6 +49,44 @@ const uploadFileAsync = async (callback: () => void) => {
   }
 };
 
+const handlePrepareExportAsync = async (file: GDriveFile) => {
+  const response = await gDrive.files.get(file.id);
+  const data = JSON.stringify(await response.json());
+
+  const permission =
+    await StorageAccessFramework.requestDirectoryPermissionsAsync();
+  const formattedToday = new Date().toLocaleDateString("en-US", {});
+
+  if (!permission?.granted) {
+    const response =
+      await StorageAccessFramework.requestDirectoryPermissionsAsync();
+
+    if (response.granted) {
+      handleExportAsync(response.directoryUri, formattedToday, data);
+    }
+    return;
+  }
+
+  handleExportAsync(permission.directoryUri, formattedToday, data);
+};
+
+const handleExportAsync = async (
+  directoryUri: string,
+  dateString: string,
+  data: string
+) => {
+  const fileUri = await StorageAccessFramework.createFileAsync(
+    directoryUri,
+    `back-up-${dateString}`,
+    "application/json"
+  );
+  await FileSystem.writeAsStringAsync(fileUri, data, {
+    encoding: FileSystem.EncodingType.UTF8,
+  });
+  alert("successfully exported");
+};
+
+type GDriveFile = { id: string; kind: string; mimeType: string; name: string };
 const FilesScreen: React.FC<{
   navigation: NavigationProp<MainNavigationParamList>;
   route: RouteProp<MainNavigationParamList, "Files">;
@@ -57,7 +95,7 @@ const FilesScreen: React.FC<{
   gDrive.accessToken = token;
 
   const [files, setFiles] = useState<{
-    files: { id: string; kind: string; mimeType: string; name: string }[];
+    files: GDriveFile[];
   }>();
 
   const getFilesClient = async () => {
@@ -109,47 +147,8 @@ const FilesScreen: React.FC<{
                 <Button
                   title="Download"
                   onPress={async () => {
-                    const response = await gDrive.files.get(file.id);
-                    const data = JSON.stringify(await response.json());
-
-                    const permission =
-                      await StorageAccessFramework.requestDirectoryPermissionsAsync();
-                    const formattedToday = new Date().toLocaleDateString(
-                      "en-US",
-                      {}
-                    );
-
                     try {
-                      if (!permission?.granted) {
-                        const response =
-                          await StorageAccessFramework.requestDirectoryPermissionsAsync();
-
-                        if (response.granted) {
-                          const fileUri =
-                            await StorageAccessFramework.createFileAsync(
-                              response.directoryUri,
-                              `back-up-${formattedToday}`,
-                              "application/json"
-                            );
-                          await FileSystem.writeAsStringAsync(fileUri, data, {
-                            encoding: FileSystem.EncodingType.UTF8,
-                          });
-                          alert("successfully exported");
-                        }
-                        return;
-                      }
-
-                      // Get the directory uri that was approved
-                      const fileUri =
-                        await StorageAccessFramework.createFileAsync(
-                          permission.directoryUri,
-                          `back-up-${formattedToday}`,
-                          "application/json"
-                        );
-                      await FileSystem.writeAsStringAsync(fileUri, data, {
-                        encoding: FileSystem.EncodingType.UTF8,
-                      });
-                      alert("successfully exported");
+                      handlePrepareExportAsync(file);
                     } catch (error) {
                       alert(error);
                     }

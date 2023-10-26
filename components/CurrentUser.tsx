@@ -1,6 +1,6 @@
 import { User } from "@react-native-google-signin/google-signin";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import React from "react";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
 
 import { Button, Image, Text, View } from "react-native";
 import { MainNavigationParamList } from "../navigator/MainNavigator";
@@ -14,7 +14,12 @@ const CurrentUser: React.FC<{
   const navigation = useNavigation<NavigationProp<MainNavigationParamList>>();
   return (
     <View
-      style={{ justifyContent: "space-between", alignItems: "center", flex: 1 }}
+      style={{
+        justifyContent: "space-between",
+        alignItems: "center",
+        flex: 1,
+        padding: 10,
+      }}
     >
       <View>
         <Text style={{ textAlign: "center", marginBottom: 10 }}>

@@ -12,6 +12,18 @@ import { MainNavigationParamList } from "../navigator/MainNavigator";
 
 const WEB_CLIENT_ID = Constants?.expoConfig?.extra?.WEB_CLIENT_ID;
 
+const faqs: { question: string; answer: string }[] = [
+  {
+    question: "What is this?",
+    answer:
+      "Log in to your Google account to see app-specific files from your Google Drive.",
+  },
+  {
+    question: "Is it safe?",
+    answer: "Yes. Other than you, nobody can see your data.",
+  },
+];
+
 GoogleSignin.configure({
   scopes: ["https://www.googleapis.com/auth/drive.appdata"],
   webClientId: WEB_CLIENT_ID,
@@ -87,7 +99,26 @@ const AuthScreen: React.FC<{
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View
+        style={{
+          flexDirection: "column",
+          gap: 10,
+          marginBottom: 10,
+          padding: 10,
+        }}
+      >
+        {faqs.map((faq, index) => {
+          return (
+            <View key={index}>
+              <Text style={{ fontSize: 14, fontWeight: "bold" }}>
+                {faq.question}
+              </Text>
+              <Text style={{ fontSize: 12 }}>{faq.answer}</Text>
+            </View>
+          );
+        })}
+      </View>
       <GoogleSigninButton
         size={GoogleSigninButton.Size.Wide}
         color={GoogleSigninButton.Color.Dark}
